@@ -1,6 +1,9 @@
 import { useState } from 'react'
-import { Droplets, Bug, Sparkles, CloudRain, Building2, Layers } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import type { Variants } from 'framer-motion'
+import { Droplets, Bug, Sparkles, CloudRain, Building2, Layers, ChevronLeft, ChevronRight, Star, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -8,7 +11,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { ServiceFlipCard } from '@/components/ui/service-flip-card'
+import { FlippingCard } from '@/components/ui/flipping-card'
+import { QuoteForm } from '@/components/QuoteForm'
+import { cn } from '@/lib/utils'
 
 interface Service {
   id: string
@@ -17,7 +22,8 @@ interface Service {
   icon: React.ReactNode
   highlights: string[]
   benefits: string[]
-  imageUrl: string
+  images: string[]
+  rating: number
   themeColor: string
 }
 
@@ -27,20 +33,18 @@ const services: Service[] = [
     title: 'Pressure Washing',
     summary: 'Professional high-pressure cleaning for driveways, patios, commercial premises and building exteriors.',
     icon: <Droplets className="w-5 h-5" />,
-    highlights: [
-      'Driveways & patios',
-      'Commercial premises',
-      'Graffiti removal',
-    ],
+    highlights: ['Driveways & patios', 'Commercial', 'Graffiti'],
     benefits: [
-      'Removes stubborn dirt, grime & staining',
-      'Restores surfaces to like-new condition',
-      'Commercial & residential service',
-      'Graffiti removal specialists',
+      'Removes stubborn dirt & grime',
+      'Restores surfaces to like-new',
       'Eco-friendly cleaning agents',
-      'Prepares surfaces for sealing & coating',
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop&q=80',
+    images: [
+      '/images/services/pressure_washing_hero_1772223121820.png',
+      'https://images.unsplash.com/photo-1596622247990-84877175438a?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1543332164-6e82f355badc?w=800&auto=format&fit=crop&q=80',
+    ],
+    rating: 4.9,
     themeColor: '210 70% 45%',
   },
   {
@@ -48,20 +52,18 @@ const services: Service[] = [
     title: 'Pest Control',
     summary: 'Comprehensive pest management for birds, rodents and insects including proofing, deterrents and removal.',
     icon: <Bug className="w-5 h-5" />,
-    highlights: [
-      'Bird proofing & netting',
-      'Rodent control',
-      'Insect treatment',
-    ],
+    highlights: ['Bird proofing', 'Rodents', 'Insects'],
     benefits: [
-      'Humane bird proofing & deterrents',
+      'Humane bird proofing',
       'Rodent & insect eradication',
-      'Netting & spike installations',
-      'Contamination cleaning & disinfection',
-      'Compliant with wildlife legislation',
-      'Long-lasting protection guarantees',
+      'Long-lasting protection',
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&auto=format&fit=crop&q=80',
+    images: [
+      '/images/services/pest_control_hero_1772223139862.png',
+      'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1596622247990-84877175438a?w=800&auto=format&fit=crop&q=80',
+    ],
+    rating: 4.8,
     themeColor: '140 50% 35%',
   },
   {
@@ -69,20 +71,18 @@ const services: Service[] = [
     title: 'Window Cleaning',
     summary: 'Professional window cleaning for high-rise and commercial buildings using rope access and water-fed pole systems.',
     icon: <Sparkles className="w-5 h-5" />,
-    highlights: [
-      'High-rise specialist',
-      'Water-fed pole systems',
-      'Glass restoration',
-    ],
+    highlights: ['High-rise', 'Water-fed pole', 'Restoration'],
     benefits: [
       'Streak-free results every time',
       'Safe rope access to all heights',
-      'No scaffolding required',
-      'Glass restoration & stain removal',
       'Regular maintenance contracts',
-      'Enhanced building appearance',
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&auto=format&fit=crop&q=80',
+    images: [
+      '/images/services/card_window_cleaning_1772222729322.png',
+      'https://images.unsplash.com/photo-1594818379496-da1e345b0ded?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1621255743419-4cb297ab5dca?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 5.0,
     themeColor: '200 65% 42%',
   },
   {
@@ -90,20 +90,18 @@ const services: Service[] = [
     title: 'Gutter & Drainage Maintenance',
     summary: 'Complete gutter cleaning, downpipe clearance, drainage inspection and preventative maintenance programmes.',
     icon: <CloudRain className="w-5 h-5" />,
-    highlights: [
-      'Blockage removal',
-      'Downpipe clearance',
-      'CCTV drainage surveys',
-    ],
+    highlights: ['Blockage removal', 'CCTV surveys', 'Jetting'],
     benefits: [
-      'Prevents water damage to property',
-      'Eliminates damp & mould issues',
-      'High-pressure jetting available',
-      'CCTV inspection for blockages',
-      'Scheduled maintenance programmes',
+      'Prevents water damage',
+      'Eliminates damp & mould',
       '24/7 emergency service',
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=600&auto=format&fit=crop&q=80',
+    images: [
+      '/images/services/card_gutter_cleaning_1772222743163.png',
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&auto=format&fit=crop&q=80',
+    ],
+    rating: 4.7,
     themeColor: '195 55% 38%',
   },
   {
@@ -111,20 +109,18 @@ const services: Service[] = [
     title: 'High Level Cleaning',
     summary: 'Specialist cleaning for warehouses, factories and commercial buildings including beams, steelwork and dust extraction.',
     icon: <Building2 className="w-5 h-5" />,
-    highlights: [
-      'Warehouse & factory cleaning',
-      'Steelwork & beams',
-      'Dust extraction',
-    ],
+    highlights: ['Warehouses', 'Steelwork', 'Dust extraction'],
     benefits: [
       'Improved workplace safety',
-      'Reduced fire hazards from dust build-up',
-      'HEPA-filtered vacuum systems',
-      'Compliance with H&S regulations',
-      'Out-of-hours & weekend scheduling',
-      'Regular cleaning programmes available',
+      'Reduced fire hazards',
+      'HEPA-filtered vacuuming',
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&auto=format&fit=crop&q=80',
+    images: [
+      '/images/services/card_high_level_1772222756607.png',
+      'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&auto=format&fit=crop&q=80',
+    ],
+    rating: 4.9,
     themeColor: '170 50% 32%',
   },
   {
@@ -132,110 +128,44 @@ const services: Service[] = [
     title: 'Cladding & Façade Cleaning',
     summary: 'Expert cleaning and restoration for all cladding types, render, stone and brick façades using specialist techniques.',
     icon: <Layers className="w-5 h-5" />,
-    highlights: [
-      'Façade restoration',
-      'Render & brick cleaning',
-      'Protective coatings',
-    ],
+    highlights: ['Restoration', 'Soft wash', 'Protective seals'],
     benefits: [
       'Restores building appearance',
       'Extends cladding lifespan',
-      'Soft wash & steam cleaning methods',
       'Heritage-approved techniques',
-      'Pollution & stain removal',
-      'Protective coatings available',
     ],
-    imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop&q=80',
+    images: [
+      '/images/services/card_facade_cleaning_1772222768918.png',
+      'https://images.unsplash.com/photo-1626245084931-d8f89cda69cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1616423640778-28d1b53229b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    ],
+    rating: 4.8,
     themeColor: '220 55% 38%',
   },
 ]
 
-function QuoteForm({ serviceName }: { serviceName?: string }) {
-  const [submitted, setSubmitted] = useState(false)
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitted(true)
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" as const }
   }
+}
 
-  if (submitted) {
-    return (
-      <div className="text-center py-8">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h3 className="text-xl font-bold text-slate-900 mb-2">Thank You!</h3>
-        <p className="text-slate-600">We&apos;ve received your enquiry for {serviceName} and will get back to you within 24 hours.</p>
-      </div>
-    )
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
   }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Full Name *</label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Your name"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-          <input
-            type="tel"
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Your phone"
-          />
-        </div>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Email Address *</label>
-        <input
-          type="email"
-          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="your@email.com"
-          required
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
-        <input
-          type="text"
-          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Your company (optional)"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Message / Project Details</label>
-        <textarea
-          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Tell us about your project..."
-          rows={4}
-        />
-      </div>
-      <button
-        type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-md transition-colors"
-      >
-        Send Enquiry
-      </button>
-    </form>
-  )
 }
 
 export function ServicesSection() {
-  const [flippedCard, setFlippedCard] = useState<string | null>(null)
   const [quoteService, setQuoteService] = useState<string | null>(null)
   const [quoteDialogOpen, setQuoteDialogOpen] = useState(false)
-
-  const handleFlip = (serviceId: string) => {
-    setFlippedCard(flippedCard === serviceId ? null : serviceId)
-  }
 
   const handleQuote = (serviceName: string) => {
     setQuoteService(serviceName)
@@ -246,7 +176,13 @@ export function ServicesSection() {
     <section id="services" className="py-20 md:py-28 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+        <motion.div
+          className="text-center max-w-3xl mx-auto mb-12 md:mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={fadeInUp}
+        >
           <span className="inline-block text-blue-600 font-semibold text-sm uppercase tracking-wider mb-3">
             Our Services
           </span>
@@ -256,26 +192,33 @@ export function ServicesSection() {
           <p className="text-lg text-slate-600">
             From routine maintenance to emergency response, our IRATA-certified team delivers safe, professional services for all your high-level access needs.
           </p>
-        </div>
+        </motion.div>
 
         {/* Flip Card Grid — 3 per row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <motion.div
+          className="flex flex-wrap gap-6 md:gap-8 justify-center items-center"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+        >
           {services.map((service) => (
-            <ServiceFlipCard
-              key={service.id}
-              title={service.title}
-              summary={service.summary}
-              imageUrl={service.imageUrl}
-              icon={service.icon}
-              highlights={service.highlights}
-              benefits={service.benefits}
-              themeColor={service.themeColor}
-              isFlipped={flippedCard === service.id}
-              onFlip={() => handleFlip(service.id)}
-              onQuote={() => handleQuote(service.title)}
-            />
+            <motion.div key={service.id} variants={fadeInUp} className="flex justify-center">
+              <FlippingCard
+                width={350}
+                height={460}
+                className="w-full max-w-[350px]"
+                frontContent={<GenericCardFront service={service} />}
+                backContent={
+                  <GenericCardBack
+                    service={service}
+                    onQuote={() => handleQuote(service.title)}
+                  />
+                }
+              />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Bottom CTA */}
         <div className="mt-12 text-center">
@@ -312,3 +255,165 @@ export function ServicesSection() {
 }
 
 export default ServicesSection
+
+function GenericCardFront({ service }: { service: Service }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+
+  const changeImage = (newDirection: number) => {
+    setDirection(newDirection);
+    setCurrentIndex((prevIndex) => {
+      const nextIndex = prevIndex + newDirection;
+      if (nextIndex < 0) return service.images.length - 1;
+      if (nextIndex >= service.images.length) return 0;
+      return nextIndex;
+    });
+  };
+
+  const carouselVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? '100%' : '-100%',
+      opacity: 0,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? '100%' : '-100%',
+      opacity: 0,
+    }),
+  };
+
+  return (
+    <div className="flex flex-col h-full w-full bg-white rounded-2xl overflow-hidden shadow-sm">
+      {/* Image Carousel Section */}
+      <div className="relative group h-[55%] min-h-[200px] w-full overflow-hidden">
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.img
+            key={currentIndex}
+            src={service.images[currentIndex]}
+            alt={service.title}
+            custom={direction}
+            variants={carouselVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: 'spring', stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 },
+            }}
+            className="absolute h-full w-full object-cover"
+          />
+        </AnimatePresence>
+
+        {/* Carousel Navigation */}
+        <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full bg-black/30 hover:bg-black/50 text-white"
+            onClick={(e) => { e.stopPropagation(); changeImage(-1); }}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full bg-black/30 hover:bg-black/50 text-white"
+            onClick={(e) => { e.stopPropagation(); changeImage(1); }}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Top Badges and Rating */}
+        <div className="absolute top-3 left-3 flex gap-2 z-10">
+          {service.highlights.slice(0, 1).map((tag) => (
+            <Badge key={tag} variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs px-2.5 py-0.5 min-w-0 font-medium">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+        <div className="absolute top-3 right-3 z-10">
+          <Badge variant="secondary" className="flex items-center gap-1.5 bg-background/80 backdrop-blur-sm text-xs px-2.5 py-0.5 font-medium">
+            <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" /> {service.rating}
+          </Badge>
+        </div>
+
+        {/* Pagination Dots */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+          {service.images.map((_, index) => (
+            <div
+              key={index}
+              className={cn(
+                'h-1.5 rounded-full transition-all',
+                currentIndex === index ? 'w-4 bg-white' : 'w-1.5 bg-white/50'
+              )}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="p-5 flex-grow flex flex-col justify-between bg-white text-slate-900">
+        <div className="space-y-3">
+          <h3 className="text-xl font-bold leading-tight">{service.title}</h3>
+          <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed">
+            {service.summary}
+          </p>
+        </div>
+
+        <div className="flex justify-between items-center pt-4 mt-auto border-t border-slate-100">
+          <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">
+            Safe & Certified
+          </p>
+          <div className="flex items-center text-xs text-slate-400 font-medium tracking-wide">
+            Hover to flip <ArrowRight className="h-4 w-4 ml-1" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function GenericCardBack({ service, onQuote }: { service: Service; onQuote: () => void }) {
+  return (
+    <div className="flex flex-col h-full w-full bg-slate-50 p-6 rounded-2xl overflow-hidden shadow-sm">
+      <div className="flex items-center gap-4 mb-5">
+        <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+          {service.icon}
+        </div>
+        <h3 className="text-xl font-bold text-slate-900 leading-tight">{service.title}</h3>
+      </div>
+
+      <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+        Expert {service.title.toLowerCase()} solutions tailored for safe, efficient high-level access.
+      </p>
+
+      <div className="space-y-4 mb-6 flex-grow">
+        {service.benefits.map((benefit, i) => (
+          <div key={i} className="flex items-start gap-3 text-sm text-slate-700">
+            <div className="mt-2 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+            <span className="leading-snug">{benefit}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-auto pt-2">
+        <Button
+          onClick={(e) => {
+            e.stopPropagation()
+            onQuote()
+          }}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold group text-sm h-12 shadow-sm"
+        >
+          Get a Quote
+          <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
+        </Button>
+      </div>
+    </div>
+  )
+}
