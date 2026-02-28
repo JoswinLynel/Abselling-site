@@ -584,7 +584,9 @@ function App() {
                 © {new Date().getFullYear()} All Areas Access Partnership Ltd. All rights reserved.
               </p>
               <p className="text-slate-500 text-sm">
-                Made by <a href="https://www.esyai.co.uk" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">EsyAI</a>
+                <a href="https://www.esyai.co.uk" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                  Made by EsyAI
+                </a>
               </p>
             </div>
             <div className="flex items-center gap-4 text-sm text-slate-500">
